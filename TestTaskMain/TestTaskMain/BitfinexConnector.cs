@@ -1,13 +1,17 @@
 ﻿using ConnectorTest;
 using System.Net.WebSockets;
+using System.Text;
 using TestTaskMain.Entity;
 
 namespace TestTaskMain
 {
     public class BitfinexConnector : ITestConnector
     {
+        private String pubUrl = "https://api-pub.bitfinex.com/v2";
+        private String wsUrl = "wss://api-pub.bitfinex.com/ws/2";
         private HttpClient httpClient = new HttpClient();
         private ClientWebSocket ws = new ClientWebSocket();
+        private CancellationTokenSource cts = new CancellationTokenSource();
 
         #region ITestCon
         public event Action<Trade> NewBuyTrade;
@@ -44,6 +48,38 @@ namespace TestTaskMain
             throw new NotImplementedException();
         }
         #endregion
-    }
 
+    public async Task ConnectAsync()
+        {
+            try
+            {
+                await ws.ConnectAsync(new Uri(pubUrl), cts.Token);
+                Console.WriteLine("WebSocket connected.");
+            }
+            catch (WebSocketException ex)
+            {
+                Console.WriteLine($"WebSocket connection error: {ex.Message}");
+            }
+        }
+
+        private async Task SendAsync(string message)
+        {
+            if (ws.State == WebSocketState.Open)
+            {
+                try
+                {
+                    await ws.SendAsync(Encoding.UTF8.GetBytes(message), WebSocketMessageType.Text, true, cts.Token);
+                }
+                catch (WebSocketException ex)
+                {
+                    Console.WriteLine($"WebSocket send error: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("WebSocket is not open.");
+            }
+        }
+
+    }
 }

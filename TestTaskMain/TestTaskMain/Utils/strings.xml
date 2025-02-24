@@ -1,5 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<strings>
-	<string name="pubUrl">https://api-pub.bitfinex.com/v2</string>
-	<string name="wsUrl">wss://api-pub.bitfinex.com/ws/2</string>
-</strings>
